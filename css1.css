@@ -1,0 +1,38 @@
+body{
+				margin:2;
+			}
+
+
+#new{
+				border: 3px solid black;
+				border-radius:3px;
+				width:200px;
+				height:50px;
+				font-size: 15px;
+				text-align: center;
+				text-
+				background-color :#CCC;
+				margin-left:20px;
+
+				}
+
+			
+
+
+
+
+				#new:hover{
+					background-color: #999;
+					cursor:pointer;
+
+					}
+				#timer{
+
+						width:200px;
+						height:50px;
+						font-size: 12px;
+						text-align: center;
+
+margin-left:20px;
+
+					}

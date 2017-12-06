@@ -1,0 +1,373 @@
+<html>
+	<head>
+
+
+
+
+	<link rel="stylesheet" type="text/css" href="css1.css" />
+
+		<!--<style>
+			body{
+				margin:0;
+			}
+		</style> -->
+
+		<script>
+		var s= {
+			rows: 8, // število vrstic
+			cols: 8, // število stolpcev
+			width: 30,
+			height: 30,
+
+		};
+		var c;
+
+		var bombs = [];
+
+		var clickedBs = [];
+
+		end = false;
+
+			window.onload = function(){
+				var canvas= document.getElementById("gCanvas");
+				c = canvas.getContext("2d");
+				timer();
+				init();
+			}
+			var mX;
+			var mY;
+			var clickedX;
+			var clickedY;
+
+			window.onclick = function(e) {
+				mX = e.pageX;
+				mY = e.pageY;
+
+				if(Math.floor(mX/s.width) < s.cols && Math.floor(mY/s.height) < s.rows){ //grid za user input razdelimo v X in Y vrednosti
+					clickedX = Math.floor(mX/s.width);
+					clickedY = Math.floor(mY/s.height);
+
+				}
+
+
+
+
+				var clickedBomb = false;
+
+				for(var i =0; i <8; i++){
+					if(clickedX ==bombs[i][0] && clickedY == bombs[i][1]){
+						clickedBomb= true;
+						end = true;
+						lose();
+
+					}
+
+				}
+				if(clickedBomb == false && mX < s.rows*s.width && mY < s.cols*s.height){
+					var totalClicked = rClickedBs.length + clickedBs.length
+					console.log(totalClicked);
+					if (totalClicked == 64) {
+						win();
+						}
+					clickPass(clickedX, clickedY);
+
+				}
+			}
+			var rClickedX;
+			var rClickedY;
+			var rClickedBs = [];
+			var rightClicks = 0;
+			window.oncontextmenu = function(e) {
+				e.preventDefault();
+
+
+
+				mX = e.pageX;
+				mY = e.pageY;
+
+				if(Math.floor(mX/s.width) < s.cols && Math.floor(mY/s.height) < s.rows){ //grid za user input razdelimo v X in Y vrednosti
+					rClickedX = Math.floor(mX/s.width);
+					rClickedY = Math.floor(mY/s.height);
+
+				}
+				var inRClickedBs = [false, 0];
+				for(i in rClickedBs) {
+					if(rClickedBs [i][0] == rClickedX && rClickedBs [i][1] == rClickedY) {
+					inRClickedBs = [true, i];
+						
+					}
+				}
+				if(inRClickedBs [0] == false) {
+					if(rClickedBs.length < 8) {
+					var n = rClickedBs.length;
+					rClickedBs[n] = [];
+					rClickedBs [n] [0] = rClickedX;
+					rClickedBs [n] [1] = rClickedY;
+
+					var totalClicked = rClickedBs.length + clickedBs.length
+					console.log(totalClicked);
+					if (totalClicked == 64) {
+						win();
+						}
+					}
+				}else{
+					rClickedBs.splice (inRClickedBs[1], 1);
+				}
+				drawCanvas();
+			}
+
+			var box; // Slika za osnovni grid
+			var num;
+			var zero;
+			var flag;
+
+			
+
+			function init(){
+
+			box = new Image();
+			num = new Image();
+			zero = new Image();
+			flag = new Image();
+			box.src="box.png";
+			num.src="num.png";
+			zero.src="zero.png";
+			flag.src="flag.png";
+
+				for(var i = 0; i < 8; i++){ //algoritem za naključno kreiranje bomb
+					bombs[i] = [
+						Math.floor(Math.random()*8),
+						Math.floor(Math.random()*8)
+
+					]
+				}
+
+				drawCanvas();
+				
+
+			}
+
+			var time =0;
+			function timer(){
+				setTimeout(function() {
+					var timerDiv = document.getElementById("timer");
+					time++;
+					timerDiv.innerHTML = time;
+					timer();
+				}, 1000)
+
+			}
+
+			function drawCanvas(){
+
+				c.clearRect(0,0,400,400);
+
+				for(var i=0; i<s.rows; i++){ // algoritem za izris 8 x 8 grida
+					for(var n=0; n<s.cols; n++){
+						var x = n*s.width;
+						var y = i*s.height;
+
+
+						var beenClicked = [0, false];
+
+					if(clickedBs.length > 0){
+						for(var k=0; k<clickedBs.length; k++){
+							if(clickedBs[k][0] == n && clickedBs[k][1] == i) {
+								beenClicked = [k, true];							
+							}
+						}
+					}
+						
+						if(beenClicked[1] == true){
+
+
+							if (clickedBs [(beenClicked [0])] [2] > 0) {
+								c.drawImage(num, x, y);
+							}
+							else{
+								c.drawImage(zero, x, y);
+							}
+						}else{
+								var rBeenClicked = [0, false];
+								if(rClickedBs.length > 0){
+							for(var k=0; k<rClickedBs.length; k++){
+								if(rClickedBs[k][0] == n && rClickedBs[k][1] == i) {
+									rBeenClicked = [k, true];							
+								}
+							}
+						}
+							if(rBeenClicked[1] == true){
+								c.drawImage(flag, x, y);
+							}else{
+								c.drawImage(box, x, y);
+								}
+						}
+
+					}
+
+				}
+				for ( i in clickedBs){
+					if(clickedBs[i][2] > 0) {
+							c.font ="20px arial";
+							c.fillText (clickedBs[i][2], clickedBs[i] [0]*s.width + 10, clickedBs[i] [1]*s.height + 22);
+					}
+
+				}
+			}
+
+			function clickPass(x, y){ //preverjanje sosednjih polij
+				var boxesToCheck = [
+				[-1,-1],
+				[0,-1],
+				[1,-1],
+				[1,0],
+				[1,1],
+				[0,1],
+				[-1,1],
+				[-1,0]
+				];
+
+				var numOfBombsSurrounding = 0;
+
+				for(i in boxesToCheck){
+					for(var n = 0; n < 8; n++){
+						if(checkBomb(n, x + boxesToCheck[i][0], y + boxesToCheck[i][1]) ==true){
+							numOfBombsSurrounding++;
+
+						}
+					}
+
+				
+			}
+				for (k in rClickedBs) {
+					if(rClickedBs [k] [0] == x && rClickedBs [k][1] == y) {
+						rClickedBs.splice (k, 1);
+					}
+				}
+
+				var clicked = false;
+
+				for (k in clickedBs) {
+
+					if (clickedBs [k][0] == x && clickedBs [k][1] == y) {
+						clicked = true;
+					}
+				}
+				if(clicked == false) {
+				clickedBs [(clickedBs.length)] = [x, y, numOfBombsSurrounding];
+				}
+
+				if (numOfBombsSurrounding == 0) {
+					for(i in  boxesToCheck){
+						if(x + boxesToCheck[i][0] >= 0 && x + boxesToCheck[i][0] <= 7 && y + boxesToCheck [i][1] >= 0 && y + boxesToCheck [i][1] <= 7) {
+							var x1 = x + boxesToCheck[i][0];
+							var y1 = y + boxesToCheck[i][1];
+
+							var alreadyClicked = false;
+							for(n in clickedBs) {
+								if(clickedBs[n] [0] == x1 && clickedBs [n] [1] == y1){
+									alreadyClicked = true;
+								}
+							}
+							if(alreadyClicked == false){
+								clickPass(x1, y1)
+							}
+						}
+					}
+				}
+
+
+
+
+				drawCanvas();
+
+
+			}
+
+			function checkBomb(i,x,y){
+				if(bombs[i][0] == x && bombs[i][1]== y){
+
+					return true;
+				}else{
+					return false;
+				}
+			}
+			function lose(){
+				alert ("BOOM!");
+				newGame();
+			}
+
+
+			function win() {
+				alert("You won!");
+
+			}
+
+			function newGame(){
+				bombs = [];
+				clickedBs = [];
+				rClickedBs = [];
+				rightClicks = 0;
+				time=0;
+				init();
+
+
+			}
+
+		</script>
+		<!--<style>
+			#new{
+				border: 1px solid gray;
+				border-radius:3px;
+				width:200px;
+				height:50px;
+				font-size: 12px;
+				text-align: center;
+				background-color :#CCC;
+
+				}
+				#new:hover{
+					background-color: #999;
+					cursor:pointer;
+
+					}
+				#timer{
+
+						width:200px;
+						height:50px;
+						font-size: 12px;
+						text-align: center;
+
+					}
+				</style>
+				-->
+	</head>
+
+	<body>
+	
+
+		<div id="gameCanvas">
+			<canvas id="gCanvas" width="400" height="400"></canvas>
+		</div>
+		<div id="controls">
+			<div id="timer">
+			0s
+			</div>
+			<div id="new" onclick="newGame() ;">
+			<p id = "NG">New Game!</p>
+			</div>
+		</div>
+	</body>
+
+
+
+
+
+
+
+
+
+
+
+
+</html>
